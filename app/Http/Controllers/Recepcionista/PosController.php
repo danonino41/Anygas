@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Recepcionista;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cliente;
+use App\Models\ClienteDireccion;
 use App\Models\Comprobante;
 use App\Models\DetallePedido;
 use App\Models\PagoPedido;
@@ -18,6 +19,44 @@ use Illuminate\Support\Str;
 
 class PosController extends Controller
 {
+    // Buscar cliente por DNI, nombre o teléfono para auto-completar
+    public function buscarCliente(Request $request)
+    {
+        $q = trim($request->get('q', ''));
+        if (strlen($q) < 3) {
+            return response()->json(['encontrado' => false]);
+        }
+
+        $clientes = Cliente::with('direcciones')
+            ->where('documento_identidad', $q)
+            ->orWhere('telefono', 'like', "%{$q}%")
+            ->orWhere('nombres', 'like', "%{$q}%")
+            ->orWhere('apellidos', 'like', "%{$q}%")
+            ->get();
+
+        if ($clientes->isEmpty()) {
+            return response()->json(['encontrado' => false, 'clientes' => []]);
+        }
+
+        return response()->json([
+            'encontrado' => true,
+            'clientes' => $clientes->map(fn($c) => [
+                'id' => $c->id,
+                'documento_identidad' => $c->documento_identidad,
+                'nombre_completo' => $c->nombres . ($c->apellidos ? ' ' . $c->apellidos : ''),
+                'telefono' => $c->telefono,
+                'direccion' => $c->direccion_principal,
+                'direcciones' => $c->direcciones->map(fn($d) => [
+                    'id' => $d->id,
+                    'direccion' => $d->direccion,
+                    'referencia' => $d->referencia,
+                    'etiqueta' => $d->etiqueta,
+                    'es_principal' => $d->es_principal,
+                ]),
+            ]),
+        ]);
+    }
+
     // Mostrar la pantalla del POS con productos y métodos de pago
     public function index()
     {
@@ -57,7 +96,21 @@ class PosController extends Controller
                     ]
                 );
 
-                // 2. Generar Código Único de Seguimiento (Ej: ANG-8821)
+                // 2. Guardar dirección si es nueva
+                $yaExiste = ClienteDireccion::where('cliente_id', $cliente->id)
+                    ->where('direccion', $request->direccion)
+                    ->exists();
+                if (!$yaExiste) {
+                    ClienteDireccion::create([
+                        'cliente_id' => $cliente->id,
+                        'direccion' => $request->direccion,
+                        'referencia' => $request->referencia ?? '',
+                        'etiqueta' => 'Dirección ' . ($cliente->direcciones()->count() + 1),
+                        'es_principal' => $cliente->direcciones()->count() === 0,
+                    ]);
+                }
+
+                // 3. Generar Código Único de Seguimiento (Ej: ANG-8821)
                 $codigoSeguimiento = 'ANG-' . rand(1000, 9999);
 
                 // Calcular monto total sumando subtotales
@@ -66,7 +119,7 @@ class PosController extends Controller
                     $montoTotal += ($prod['cantidad'] * $prod['precio']);
                 }
 
-                // 3. Crear Cabecera del Pedido (REQ-02)
+                // 4. Crear Cabecera del Pedido (REQ-02)
                 $pedido = Pedido::create([
                     'codigo_seguimiento' => $codigoSeguimiento,
                     'cliente_id' => $cliente->id,
@@ -111,7 +164,23 @@ class PosController extends Controller
                     'fecha_emision' => now()
                 ]);
 
-                return redirect()->route('recepcionista.dashboard')->with('éxito', "Pedido registrado con éxito. Código de rastreo: {$codigoSeguimiento}");
+                $items = DetallePedido::where('pedido_id', $pedido->id)
+                    ->with('producto')
+                    ->get()
+                    ->map(fn($d) => [
+                        'nombre' => $d->producto?->nombre ?? 'Producto',
+                        'cantidad' => $d->cantidad,
+                        'precio' => $d->precio_unitario,
+                        'subtotal' => $d->subtotal,
+                    ]);
+
+                return redirect()->route('recepcionista.pos')->with([
+                    'pedido_creado' => true,
+                    'codigo' => $codigoSeguimiento,
+                    'cliente' => $request->nombres,
+                    'total' => $montoTotal,
+                    'items' => $items,
+                ]);
             });
 
         } catch (\Exception $e) {

@@ -7,8 +7,8 @@
     <div class="col-md-5 col-lg-4">
         <div class="card shadow-lg border-0 rounded-4">
             <div class="card-header bg-dark text-white text-center py-4 rounded-top-4">
-                <h3 class="fw-bold mb-0 text-warning">⚡ ANYGAS</h3>
-                <small class="text-light">Portal Operativo</small>
+                <img src="https://lirp.cdn-website.com/2cdc2e47/dms3rep/multi/opt/LOGO+ANY+GAS+LETRAS+REDONDAS-cad4bd93-1920w.png" alt="AnyGas" style="height: 160px; object-fit: contain; margin-bottom: 10px;">
+                <small class="text-light d-block">Portal Operativo</small>
             </div>
             <div class="card-body p-4 bg-white rounded-bottom-4">
 

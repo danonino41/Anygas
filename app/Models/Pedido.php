@@ -20,6 +20,7 @@ class Pedido extends Model
         'monto_total',
         'estado',
         'fecha_registro',
+        'fecha_salida',
         'fecha_entrega'
     ];
 

@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
         :root {
@@ -132,6 +133,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            background: url('data:image/svg+xml,%3Csvg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%235a187f" fill-opacity="0.03" fill-rule="evenodd"%3E%3Ccircle cx="3" cy="3" r="3"/%3E%3Ccircle cx="13" cy="13" r="3"/%3E%3C/g%3E%3C/svg%3E');
         }
 
         .top-header {
@@ -213,8 +215,12 @@
         <aside id="recepcionSidebar" class="sidebar d-flex flex-column flex-shrink-0 pt-3 shadow">
 
             <a href="/recepcionista/dashboard" class="d-flex justify-content-center align-items-center mb-3 py-2 text-decoration-none">
-                <span class="logo-collapsed">🔥</span>
-                <span class="logo-expanded">⚡ ANYGAS</span>
+                <span class="logo-collapsed">
+                    <img src="https://lirp.cdn-website.com/2cdc2e47/dms3rep/multi/opt/LOGO+ANY+GAS+LETRAS+REDONDAS-cad4bd93-1920w.png" alt="AnyGas" style="height: 108px; width: 108px; object-fit: contain; border-radius: 8px;">
+                </span>
+                <span class="logo-expanded">
+                    <img src="https://lirp.cdn-website.com/2cdc2e47/dms3rep/multi/opt/LOGO+ANY+GAS+LETRAS+REDONDAS-cad4bd93-1920w.png" alt="AnyGas" style="height: 120px; object-fit: contain;">
+                </span>
             </a>
 
             <hr class="text-secondary mx-3 my-1 opacity-25">
@@ -244,8 +250,15 @@
 
                 <li class="nav-item mt-1">
                     <a href="/recepcionista/asignar" class="nav-link {{ request()->is('recepcionista/asignar*') ? 'active' : '' }}">
-                        <i class="bi bi-motorcycle"></i>
+                        <i class="bi bi-box-seam"></i>
                         <span class="menu-text">Despacho y Rutas</span>
+                    </a>
+                </li>
+
+                <li class="nav-item mt-1">
+                    <a href="/recepcionista/ventas" class="nav-link {{ request()->is('recepcionista/ventas*') ? 'active' : '' }}">
+                        <i class="bi bi-cash-coin"></i>
+                        <span class="menu-text">Ventas del Día</span>
                     </a>
                 </li>
 

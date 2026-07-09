@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Recepcionista\AsignarController;
+use App\Http\Controllers\Recepcionista\CatalogoController;
+use App\Http\Controllers\Recepcionista\DashboardController;
+use App\Http\Controllers\Recepcionista\HistorialController;
 use App\Http\Controllers\Recepcionista\PosController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,14 +39,18 @@ Route::middleware(['auth', 'rol:administrador,recepcionista,motorizado'])->group
     });
 
     Route::prefix('recepcionista')->name('recepcionista.')->middleware('rol:recepcionista,administrador')->group(function () {
-        Route::get('/dashboard', fn() => view('recepcionista.dashboard'))->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         
         Route::get('/punto-venta', [PosController::class, 'index'])->name('pos');
         Route::post('/punto-venta', [PosController::class, 'store'])->name('pos.guardar');
+        Route::get('/buscar-cliente', [PosController::class, 'buscarCliente'])->name('buscar.cliente');
         
-        Route::get('/catalogo', fn() => '<h1>📦 Catálogo</h1>')->name('catalogo');
-        Route::get('/asignar', fn() => '<h1>🏍️ Despacho</h1>')->name('asignar');
-        Route::get('/historial', fn() => '<h1>🕒 Historial</h1>')->name('historial');
+        Route::get('/catalogo', [CatalogoController::class, 'index'])->name('catalogo');
+        Route::get('/asignar', [AsignarController::class, 'index'])->name('asignar');
+        Route::post('/asignar/{pedido}', [AsignarController::class, 'store'])->name('asignar.procesar');
+        Route::post('/asignar-multiple', [AsignarController::class, 'asignarMultiple'])->name('asignar.multiple');
+        Route::get('/historial', [HistorialController::class, 'index'])->name('historial');
+        Route::get('/ventas', [HistorialController::class, 'ventasDia'])->name('ventas');
     });
 
     Route::prefix('motorizado')->name('motorizado.')->middleware('rol:motorizado')->group(function () {

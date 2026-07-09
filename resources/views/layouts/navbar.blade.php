@@ -1,6 +1,8 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-2">
     <div class="container">
-        <a class="navbar-brand fw-bold text-warning tracking-wide" href="/">⚡ ANYGAS</a>
+        <a class="navbar-brand" href="/">
+            <img src="https://lirp.cdn-website.com/2cdc2e47/dms3rep/multi/opt/LOGO+ANY+GAS+LETRAS+REDONDAS-cad4bd93-1920w.png" alt="AnyGas" style="height: 112px; object-fit: contain;">
+        </a>
         
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuAnygas" aria-controls="menuAnygas" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
