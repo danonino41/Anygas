@@ -17,7 +17,9 @@ class Cliente extends Model
         'direccion_principal',
         'referencia_direccion',
         'correo',
-        'estado'
+        'estado',
+        'deuda_envases',
+        'notas_internas'
     ];
 
     public function pedidos()
@@ -28,5 +30,15 @@ class Cliente extends Model
     public function direcciones()
     {
         return $this->hasMany(ClienteDireccion::class, 'cliente_id')->orderBy('es_principal', 'desc');
+    }
+
+    public function telefonos()
+    {
+        return $this->hasMany(ClienteTelefono::class, 'cliente_id')->orderBy('es_principal', 'desc');
+    }
+
+    public function getNombreCompletoAttribute()
+    {
+        return trim(($this->nombres ?? '') . ' ' . ($this->apellidos ?? ''));
     }
 }

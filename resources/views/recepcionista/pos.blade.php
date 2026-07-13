@@ -59,7 +59,13 @@
                         </div>
                         <div class="col-5">
                             <label class="form-label small fw-bold mb-1">DNI / RUC</label>
-                            <input type="text" name="documento_identidad" id="dniCliente" class="form-control form-control-sm" placeholder="71234567" required>
+                            <div class="input-group input-group-sm">
+                                <input type="text" name="documento_identidad" id="dniCliente" class="form-control" placeholder="71234567" required>
+                                <button type="button" class="btn btn-outline-primary" id="btnConsultarDoc" title="Consultar en SUNAT/RENIEC">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                            <small id="docStatus" class="text-muted" style="display:none;"></small>
                         </div>
                         <div class="col-7">
                             <label class="form-label small fw-bold mb-1">Teléfono</label>
@@ -161,9 +167,15 @@
                     ${htmlResumen}
                 </div>
             `,
+            showDenyButton: true,
             confirmButtonText: 'Nuevo Pedido',
+            denyButtonText: '<i class="bi bi-receipt me-1"></i> Imprimir Ticket',
             confirmButtonColor: '#F59E0B',
-            showCancelButton: false,
+            denyButtonColor: '#343a40',
+        }).then((result) => {
+            if (result.isDenied) {
+                window.open('{{ url("admin/sunat") }}/{{ session("comprobante_id") }}/ticket', '_blank');
+            }
         });
     });
     @endif
@@ -463,6 +475,60 @@
 
     document.getElementById('inputDireccion')?.addEventListener('input', function() {
         document.getElementById('direccionesContainer').style.display = 'none';
+    });
+
+    // ─── Consulta DNI/RUC vía API externa ───
+    async function consultarDocumento(doc) {
+        const status = document.getElementById('docStatus');
+        const btn = document.getElementById('btnConsultarDoc');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        status.style.display = 'inline';
+        status.className = 'text-muted';
+        status.textContent = 'Consultando...';
+
+        try {
+            const res = await fetch('/recepcionista/consultar-documento', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                body: JSON.stringify({ documento: doc })
+            });
+            const data = await res.json();
+            if (!data.success) {
+                status.className = 'text-danger';
+                status.textContent = data.message || 'No encontrado';
+                return;
+            }
+            const d = data.datos;
+            document.getElementById('inputNombres').value = d.nombres || d.razon_social || '';
+            document.getElementById('inputTelefono').value = '';
+            document.getElementById('inputDireccion').value = d.direccion || '';
+            status.className = 'text-success';
+            status.textContent = 'Datos cargados';
+        } catch (e) {
+            status.className = 'text-danger';
+            status.textContent = 'Error de red';
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-search"></i>';
+        }
+    }
+
+    document.getElementById('btnConsultarDoc')?.addEventListener('click', function() {
+        const doc = document.getElementById('dniCliente').value.trim();
+        if (doc.length < 8) {
+            Swal.fire({ icon: 'warning', title: 'Documento inválido', text: 'Ingrese 8 dígitos (DNI) o 11 (RUC).', confirmButtonColor: '#F59E0B' });
+            return;
+        }
+        consultarDocumento(doc);
+    });
+
+    document.getElementById('dniCliente')?.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const doc = this.value.trim();
+            if (doc.length >= 8) consultarDocumento(doc);
+        }
     });
 </script>
 

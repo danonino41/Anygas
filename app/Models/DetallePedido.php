@@ -14,7 +14,8 @@ class DetallePedido extends Model
         'producto_id',
         'cantidad',
         'precio_unitario',
-        'subtotal'
+        'subtotal',
+        'envases_devueltos'
     ];
 
     public function pedido()

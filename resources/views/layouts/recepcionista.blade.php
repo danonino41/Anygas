@@ -4,11 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>AnyGas — @yield('titulo', 'Mostrador y Recepción')</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://lirp.cdn-website.com/2cdc2e47/dms3rep/multi/opt/LOGO+ANY+GAS+LETRAS+REDONDAS-cad4bd93-1920w.png">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
@@ -33,7 +35,7 @@
 
         /* --- BARRA LATERAL (SIDEBAR) --- */
         .sidebar {
-            background-color: var(--anygas-dark);
+            background: linear-gradient(180deg, #111827 0%, #451a03 50%, #78350f 100%);
             min-height: 100vh;
             width: 85px;
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -271,12 +273,9 @@
 
             </ul>
 
-            <div class="p-3 text-center border-top border-secondary border-opacity-25">
-                <small class="text-secondary d-none d-sm-block" style="font-size: 0.65rem;">🟢 Sistema Activo</small>
-            </div>
         </aside>
 
-        <div class="w-100 d-flex flex-column app-content">
+        <div class="flex-grow-1 d-flex flex-column app-content">
 
             <header class="top-header px-4 py-3 border-bottom shadow-sm d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3 text-dark">

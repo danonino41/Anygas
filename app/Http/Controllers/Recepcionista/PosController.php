@@ -12,6 +12,7 @@ use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\TipoPago;
 use App\Models\Usuario;
+use App\Services\ApiperuService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -156,7 +157,7 @@ class PosController extends Controller
                 ]);
 
                 // 6. Generar Boleta Digital
-                Comprobante::create([
+                $comprobante = Comprobante::create([
                     'pedido_id' => $pedido->id,
                     'tipo_comprobante' => strlen($request->documento_identidad) == 11 ? 'factura' : 'boleta',
                     'serie' => strlen($request->documento_identidad) == 11 ? 'F001' : 'B001',
@@ -176,6 +177,7 @@ class PosController extends Controller
 
                 return redirect()->route('recepcionista.pos')->with([
                     'pedido_creado' => true,
+                    'comprobante_id' => $comprobante->id,
                     'codigo' => $codigoSeguimiento,
                     'cliente' => $request->nombres,
                     'total' => $montoTotal,
@@ -186,5 +188,32 @@ class PosController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors(['error_pos' => 'Ocurrió un error en la transacción: ' . $e->getMessage()]);
         }
+    }
+
+    public function consultarDocumento(Request $request)
+    {
+        $request->validate([
+            'documento' => 'required|string|max:11',
+        ]);
+
+        $numero = trim($request->get('documento'));
+        $service = new ApiperuService();
+
+        if (strlen($numero) === 11) {
+            $result = $service->consultarRuc($numero);
+        } elseif (strlen($numero) === 8) {
+            $result = $service->consultarDni($numero);
+        } else {
+            $result = null;
+        }
+
+        if ($result) {
+            return response()->json(['success' => true, 'datos' => $result]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'No se encontraron datos para el número ingresado.',
+        ]);
     }
 }

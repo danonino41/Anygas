@@ -16,6 +16,7 @@ class DashboardController extends Controller
         $pendientes  = Pedido::whereDate('fecha_registro', $hoy)->where('estado', 'pendiente')->count();
         $asignados   = Pedido::whereDate('fecha_registro', $hoy)->where('estado', 'asignado')->count();
         $enCamino    = Pedido::whereDate('fecha_registro', $hoy)->where('estado', 'en_camino')->count();
+        $enRuta      = Pedido::whereDate('fecha_registro', $hoy)->where('estado', 'en_ruta')->count();
         $entregados  = Pedido::whereDate('fecha_registro', $hoy)->where('estado', 'entregado')->count();
         $cancelados  = Pedido::whereDate('fecha_registro', $hoy)->where('estado', 'cancelado')->count();
         $ingresos    = Pedido::whereDate('fecha_registro', $hoy)->where('estado', 'entregado')->sum('monto_total');
@@ -29,7 +30,7 @@ class DashboardController extends Controller
         $motorizados = Usuario::where('rol', 'motorizado')->where('estado', 'activo')->get();
 
         $motorizados->loadCount(['pedidosMotorizados as carga_actual' => function ($q) use ($hoy) {
-            $q->whereDate('fecha_registro', $hoy)->whereIn('estado', ['asignado', 'en_camino']);
+            $q->whereDate('fecha_registro', $hoy)->whereIn('estado', ['asignado', 'en_camino', 'en_ruta']);
         }]);
 
         $stockBajo = Producto::where('estado', 'disponible')->where('stock_actual', '<', 5)->get();

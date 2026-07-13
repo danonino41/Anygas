@@ -21,7 +21,7 @@ class AsignarController extends Controller
             ->get();
 
         $enRuta = Pedido::with(['cliente', 'motorizado'])
-            ->whereIn('estado', ['asignado', 'en_camino'])
+            ->whereIn('estado', ['asignado', 'en_camino','en_ruta'])
             ->orderBy('fecha_registro', 'desc')
             ->get();
 
@@ -31,11 +31,11 @@ class AsignarController extends Controller
             ->get()
             ->map(function ($mot) {
                 $mot->carga_actual = Pedido::where('motorizado_id', $mot->id)
-                    ->whereIn('estado', ['asignado', 'en_camino'])
+                    ->whereIn('estado', ['asignado', 'en_camino','en_ruta'])
                     ->count();
                 $mot->pedidos_asignados = Pedido::with(['cliente', 'detalles.producto'])
                     ->where('motorizado_id', $mot->id)
-                    ->whereIn('estado', ['asignado', 'en_camino'])
+                    ->whereIn('estado', ['asignado', 'en_camino','en_ruta'])
                     ->orderBy('fecha_registro', 'asc')
                     ->get();
                 return $mot;

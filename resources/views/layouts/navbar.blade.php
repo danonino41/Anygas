@@ -30,7 +30,7 @@
                         </li>
                     @elseif(Auth::user()->rol === 'motorizado')
                         <li class="nav-item">
-                            <a class="nav-link fw-semibold text-success" href="/motorizado/dashboard">🗺️ Mis Rutas de Hoy</a>
+                            <a class="nav-link fw-semibold text-success" href="/motorizado/ruta">🗺️ Mis Rutas de Hoy</a>
                         </li>
                     @endif
                 @else
