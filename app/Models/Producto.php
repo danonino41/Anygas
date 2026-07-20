@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 class Producto extends Model
 {
+    use Auditable;
     protected $table = 'productos';
     public $timestamps = false;
 

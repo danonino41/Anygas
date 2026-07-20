@@ -274,4 +274,71 @@ class RutaController extends Controller
 
         return back()->with('success', $mensaje);
     }
+
+    public function cierreTurno()
+    {
+        $userId = Auth::id();
+        $hoy = now()->startOfDay();
+
+        $pedidos = Pedido::with(['cliente', 'detalles', 'pagos.tipoPago'])
+            ->where('motorizado_id', $userId)
+            ->where(function ($q) use ($hoy) {
+                $q->where('fecha_entrega', '>=', $hoy)
+                  ->orWhere('fecha_registro', '>=', $hoy);
+            })
+            ->whereIn('estado', ['entregado', 'cancelado'])
+            ->orderBy('fecha_entrega', 'desc')
+            ->get();
+
+        $entregados = $pedidos->where('estado', 'entregado');
+        $cancelados = $pedidos->where('estado', 'cancelado');
+
+        $totalEfectivo = 0;
+        $totalYape = 0;
+        $totalPlin = 0;
+        $totalTarjeta = 0;
+        $totalOtros = 0;
+
+        foreach ($entregados as $p) {
+            foreach ($p->pagos as $pago) {
+                $nombreTipo = strtolower($pago->tipoPago->nombre ?? '');
+                if (str_contains($nombreTipo, 'efectivo')) {
+                    $totalEfectivo += $pago->monto;
+                } elseif (str_contains($nombreTipo, 'yape')) {
+                    $totalYape += $pago->monto;
+                } elseif (str_contains($nombreTipo, 'plin')) {
+                    $totalPlin += $pago->monto;
+                } elseif (str_contains($nombreTipo, 'tarjeta')) {
+                    $totalTarjeta += $pago->monto;
+                } else {
+                    $totalOtros += $pago->monto;
+                }
+            }
+        }
+
+        $totalCobrado = $totalEfectivo + $totalYape + $totalPlin + $totalTarjeta + $totalOtros;
+        $totalVendido = $entregados->sum('monto_total');
+
+        $vaciosRecogidos = DetallePedido::whereHas('pedido', function ($q) use ($userId, $hoy) {
+                $q->where('motorizado_id', $userId)
+                  ->where('estado', 'entregado')
+                  ->where('fecha_entrega', '>=', $hoy);
+            })
+            ->sum('envases_devueltos');
+
+        $vaciosPendientes = DetallePedido::whereHas('pedido', function ($q) use ($userId, $hoy) {
+                $q->where('motorizado_id', $userId)
+                  ->where('estado', 'entregado')
+                  ->where('fecha_entrega', '>=', $hoy);
+            })
+            ->get()
+            ->sum(fn($d) => $d->cantidad - $d->envases_devueltos);
+
+        return view('motorizado.cierre', compact(
+            'entregados', 'cancelados',
+            'totalEfectivo', 'totalYape', 'totalPlin', 'totalTarjeta', 'totalOtros',
+            'totalCobrado', 'totalVendido',
+            'vaciosRecogidos', 'vaciosPendientes'
+        ));
+    }
 }

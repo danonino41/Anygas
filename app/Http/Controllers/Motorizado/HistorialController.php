@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\DB;
 
 class HistorialController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $userId = Auth::id();
         $hoy = now()->startOfDay();
 
-        $pedidos = Pedido::with(['cliente', 'detalles.producto', 'pagos.tipoPago'])
+        $query = Pedido::with(['cliente', 'detalles.producto', 'pagos.tipoPago'])
             ->where('motorizado_id', $userId)
             ->whereIn('estado', ['entregado', 'cancelado'])
             ->where(function ($q) use ($hoy) {
@@ -24,11 +24,20 @@ class HistorialController extends Controller
                   ->orWhere('fecha_registro', '>=', $hoy);
             })
             ->orderBy('fecha_entrega', 'desc')
-            ->orderBy('fecha_registro', 'desc')
+            ->orderBy('fecha_registro', 'desc');
+
+        $pedidos = $query->paginate(15)->withQueryString();
+
+        $todos = Pedido::where('motorizado_id', $userId)
+            ->whereIn('estado', ['entregado', 'cancelado'])
+            ->where(function ($q) use ($hoy) {
+                $q->where('fecha_entrega', '>=', $hoy)
+                  ->orWhere('fecha_registro', '>=', $hoy);
+            })
             ->get();
 
-        $entregados = $pedidos->where('estado', 'entregado');
-        $cancelados = $pedidos->where('estado', 'cancelado');
+        $entregados = $todos->where('estado', 'entregado');
+        $cancelados = $todos->where('estado', 'cancelado');
 
         $totalEfectivo = 0;
         $totalYape = 0;

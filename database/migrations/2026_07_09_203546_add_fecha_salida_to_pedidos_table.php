@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('pedidos', function (Blueprint $table) {
-            $table->datetime('fecha_salida')->nullable()->after('fecha_registro');
-        });
+        if (!Schema::hasColumn('pedidos', 'fecha_salida')) {
+            Schema::table('pedidos', function (Blueprint $table) {
+                $table->dateTime('fecha_salida')->nullable()->after('fecha_registro');
+            });
+        }
     }
 
     public function down(): void

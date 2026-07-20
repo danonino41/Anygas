@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 
 class Comprobante extends Model
 {
+    use Auditable;
     protected $table = 'comprobantes';
     public $timestamps = false;
 
@@ -16,6 +18,7 @@ class Comprobante extends Model
         'numero_correlativo',
         'fecha_emision',
         'estado_sincronizacion',
+        'monto_total',
     ];
 
     public function pedido()
@@ -30,23 +33,24 @@ class Comprobante extends Model
 
     public function getBaseImponibleAttribute(): float
     {
+        $total = $this->monto_total;
         if ($this->tipo_comprobante === 'factura') {
-            return round($this->pedido->monto_total / 1.18, 2);
+            return round($total / 1.18, 2);
         }
-        return (float) $this->pedido->monto_total;
+        return $total;
     }
 
     public function getIgvAttribute(): float
     {
         if ($this->tipo_comprobante === 'factura') {
-            return round($this->pedido->monto_total - $this->base_imponible, 2);
+            return round($this->monto_total - $this->base_imponible, 2);
         }
         return 0.00;
     }
 
     public function getMontoTotalAttribute(): float
     {
-        return (float) $this->pedido->monto_total;
+        return (float) ($this->attributes['monto_total'] ?? $this->pedido->monto_total);
     }
 
     public function getEstadoBadgeAttribute(): string

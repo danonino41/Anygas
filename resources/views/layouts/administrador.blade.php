@@ -197,6 +197,12 @@
                         <span class="menu-text">Historial y SUNAT</span>
                     </a>
                 </li>
+                <li class="nav-item mt-1">
+                    <a href="/admin/auditoria" class="nav-link {{ request()->is('admin/auditoria*') ? 'active' : '' }}">
+                        <i class="bi bi-shield-check"></i>
+                        <span class="menu-text">Auditoría</span>
+                    </a>
+                </li>
             </ul>
         </aside>
 

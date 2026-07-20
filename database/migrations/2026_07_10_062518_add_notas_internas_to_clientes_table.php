@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('clientes', function (Blueprint $table) {
-            $table->text('notas_internas')->nullable()->after('deuda_envases');
-        });
+        if (!Schema::hasColumn('clientes', 'notas_internas')) {
+            Schema::table('clientes', function (Blueprint $table) {
+                $table->text('notas_internas')->nullable()->after('deuda_envases');
+            });
+        }
     }
 
     public function down(): void

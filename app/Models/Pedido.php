@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 
 class Pedido extends Model
 {
+    use Auditable;
     protected $table = 'pedidos';
     public $timestamps = false;
 

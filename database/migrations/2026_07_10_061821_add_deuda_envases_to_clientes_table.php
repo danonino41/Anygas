@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('clientes', function (Blueprint $table) {
-            $table->integer('deuda_envases')->default(0)->after('estado')->comment('Balones vacíos no devueltos');
-        });
+        if (!Schema::hasColumn('clientes', 'deuda_envases')) {
+            Schema::table('clientes', function (Blueprint $table) {
+                $table->integer('deuda_envases')->default(0)->after('estado')->comment('Balones vacíos no devueltos');
+            });
+        }
     }
 
     public function down(): void

@@ -8,7 +8,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('cliente_telefonos', function (Blueprint $table) {
+        if (!Schema::hasTable('cliente_telefonos')) {
+            Schema::create('cliente_telefonos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cliente_id')->constrained('clientes')->cascadeOnDelete();
             $table->string('telefono', 15);
@@ -16,6 +17,7 @@ return new class extends Migration
             $table->boolean('es_principal')->default(false);
             $table->timestamps();
         });
+        }
     }
 
     public function down(): void

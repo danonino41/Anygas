@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('detalles_pedido', function (Blueprint $table) {
-            $table->integer('envases_devueltos')->default(0)->after('subtotal');
-        });
+        if (!Schema::hasColumn('detalles_pedido', 'envases_devueltos')) {
+            Schema::table('detalles_pedido', function (Blueprint $table) {
+                $table->integer('envases_devueltos')->default(0)->after('subtotal');
+            });
+        }
     }
 
     public function down(): void

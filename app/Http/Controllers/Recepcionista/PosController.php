@@ -81,6 +81,21 @@ class PosController extends Controller
             'productos' => 'required|array',
         ]);
 
+        // Validar stock suficiente antes de procesar
+        $productosSinStock = [];
+        foreach ($request->productos as $idProducto => $item) {
+            $producto = Producto::find($idProducto);
+            if (!$producto || $producto->stock_actual < $item['cantidad']) {
+                $nombre = $producto ? "{$producto->nombre} ({$producto->marca})" : "ID #{$idProducto}";
+                $productosSinStock[] = $nombre;
+            }
+        }
+        if (!empty($productosSinStock)) {
+            return back()->withErrors([
+                'error_pos' => 'Stock insuficiente para: ' . implode(', ', $productosSinStock) . '. Actualiza las cantidades o repón inventario.',
+            ])->withInput();
+        }
+
         try {
             return DB::transaction(function () use ($request) {
                 
@@ -162,7 +177,8 @@ class PosController extends Controller
                     'tipo_comprobante' => strlen($request->documento_identidad) == 11 ? 'factura' : 'boleta',
                     'serie' => strlen($request->documento_identidad) == 11 ? 'F001' : 'B001',
                     'numero_correlativo' => str_pad($pedido->id, 6, '0', STR_PAD_LEFT),
-                    'fecha_emision' => now()
+                    'fecha_emision' => now(),
+                    'monto_total' => $montoTotal,
                 ]);
 
                 $items = DetallePedido::where('pedido_id', $pedido->id)

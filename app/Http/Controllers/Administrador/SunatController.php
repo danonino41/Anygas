@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Administrador;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\EnviarComprobanteSunat;
 use App\Models\Comprobante;
 use App\Models\Pedido;
 use App\Services\SunatService;
@@ -33,7 +34,7 @@ class SunatController extends Controller
                 ? trim("{$c->pedido->cliente->nombres} {$c->pedido->cliente->apellidos}")
                 : '—';
             $c->cliente_doc = $c->pedido->cliente->documento_identidad ?? '—';
-            $c->monto_total_val = (float) $c->pedido->monto_total;
+            $c->monto_total_val = (float) $c->monto_total;
             $c->base_imponible_val = $c->tipo_comprobante === 'factura'
                 ? round($c->monto_total_val / 1.18, 2)
                 : $c->monto_total_val;
@@ -193,18 +194,14 @@ class SunatController extends Controller
     {
         $c = Comprobante::with('pedido')->findOrFail($id);
 
-        $sunatService = new SunatService();
-        $resultado = $sunatService->enviarComprobante($c->pedido);
+        EnviarComprobanteSunat::dispatchSync($c);
 
-        if ($resultado['success']) {
-            $desc = $resultado['description'] ?? 'Enviado correctamente';
-            $notas = isset($resultado['notes']) && count($resultado['notes'])
-                ? ' | Obs: ' . implode(', ', $resultado['notes'])
-                : '';
-            return back()->with('success', "Comprobante {$c->serie}-{$c->numero_correlativo} enviado. {$desc}{$notas}");
+        $c->refresh();
+        if ($c->estado_sincronizacion === 'aceptado') {
+            return back()->with('success', "Comprobante {$c->serie}-{$c->numero_correlativo} enviado y aceptado por SUNAT.");
         }
 
-        return back()->with('error', "Error al enviar {$c->serie}-{$c->numero_correlativo}: " . ($resultado['message'] ?? 'Error desconocido'));
+        return back()->with('error', "Error al enviar {$c->serie}-{$c->numero_correlativo}. Estado: {$c->estado_sincronizacion}. Reintente nuevamente.");
     }
 
     public function pdf($id)

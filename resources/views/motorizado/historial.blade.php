@@ -112,6 +112,9 @@
                     </tbody>
                 </table>
             </div>
+            <div class="px-3 pb-3">
+                {{ $pedidos->links() }}
+            </div>
         </div>
     </div>
     @else

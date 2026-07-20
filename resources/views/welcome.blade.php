@@ -44,7 +44,7 @@
                 <ul class="navbar-nav gap-3 mt-3 mt-lg-0">
                     
                     <li class="nav-item">
-                        <a class="btn btn-outline-primary w-100" href="#">
+                        <a class="btn btn-outline-primary w-100" href="{{ route('cliente.seguimiento') }}">
                             📍 Rastrear Pedido
                         </a>
                     </li>
@@ -80,14 +80,14 @@
                         <div class="card-body p-4">
                             <h5 class="card-title text-dark">¿Hiciste un pedido?</h5>
                             <p class="card-text text-muted small">
-                                Muy pronto habilitaremos la función para que puedas hacer el seguimiento en tiempo real de tu motorizado.
+                                Ingresa tu código de seguimiento para conocer el estado de tu pedido en tiempo real.
                             </p>
                             
                             <div class="d-grid">
-                                <button class="btn btn-secondary disabled d-flex justify-content-center align-items-center gap-2" type="button">
-                                    <span class="spinner-grow spinner-grow-sm text-light" role="status" aria-hidden="true"></span>
-                                    <span>Módulo en construcción...</span>
-                                </button>
+                                <a href="{{ route('cliente.seguimiento') }}" class="btn btn-primary d-flex justify-content-center align-items-center gap-2">
+                                    <i class="bi bi-search"></i>
+                                    <span>Rastrear mi Pedido</span>
+                                </a>
                             </div>
                             <small class="text-muted mt-2 d-block" style="font-size: 0.7rem;">⚡ Arquitectura Laravel enlazada a MySQL</small>
                         </div>

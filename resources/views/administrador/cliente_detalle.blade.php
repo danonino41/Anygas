@@ -208,7 +208,7 @@
                             <td class="text-end pe-3">
                                 <button class="btn btn-outline-info btn-sm pedido-detalle-btn"
                                         title="Ver detalle del pedido"
-                                        data-pedido='@json($p)'>
+                                        data-pedido='@json($p, JSON_HEX_APOS)'>
                                     <i class="bi bi-eye"></i>
                                 </button>
                             </td>

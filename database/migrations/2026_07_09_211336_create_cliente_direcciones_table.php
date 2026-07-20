@@ -12,7 +12,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cliente_direcciones', function (Blueprint $table) {
+        if (!Schema::hasTable('cliente_direcciones')) {
+            Schema::create('cliente_direcciones', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('cliente_id');
             $table->string('direccion', 255);
@@ -29,6 +30,7 @@ return new class extends Migration
         DB::statement("INSERT INTO cliente_direcciones (cliente_id, direccion, referencia, es_principal, created_at, updated_at)
                         SELECT id, direccion_principal, referencia_direccion, 1, NOW(), NOW()
                         FROM clientes WHERE direccion_principal IS NOT NULL AND direccion_principal != ''");
+        }
     }
 
     public function down(): void

@@ -1,0 +1,66 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: production
+      APP_DEBUG: false
+      APP_KEY: base64:ex4FCm7BQTao7hs8zNOxlB7tEw78By18QnohWTSG+I4=
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: anygas
+      DB_USERNAME: anygas
+      DB_PASSWORD: secret
+      QUEUE_CONNECTION: sync
+      SESSION_DRIVER: file
+      SESSION_LIFETIME: 120
+      LOG_CHANNEL: stack
+      LOG_LEVEL: warning
+      SUNAT_RUC: 20000000001
+      SUNAT_RAZON_SOCIAL: "INVERSIONES CORRALES ESQUIVEL S.A.C.- INVERCOES S.A.C."
+      SUNAT_NOMBRE_COMERCIAL: "Any Gas"
+      SUNAT_DIRECCION: "Av. Paseo de la Republica Nro. 8773"
+      SUNAT_URBANIZACION: "Sanchez Cerro"
+      SUNAT_DISTRITO: "Santiago de Surco"
+      SUNAT_PROVINCIA: Lima
+      SUNAT_DEPARTAMENTO: Lima
+      SUNAT_CODIGO_UBIGEO: 150129
+      SUNAT_CODIGO_LOCAL: 0000
+      SUNAT_CLAVE_SOL_USUARIO: MODDATOS
+      SUNAT_CLAVE_SOL_CONTRASENA: moddatos
+      SUNAT_CERTIFICADO_PATH: app/certificates/certificado.pem
+      SUNAT_MODO: beta
+      APIPERU_TOKEN: 5049e5aec60a681890f552d735375e7b538ec9a6e0dc5a47097c29caef07d36c
+    volumes:
+      - storage_data:/app/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: anygas
+      MYSQL_USER: anygas
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root_secret
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  storage_data:

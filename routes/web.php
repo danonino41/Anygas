@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Administrador\AuditLogController;
 use App\Http\Controllers\Administrador\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Administrador\KardexController;
 use App\Http\Controllers\Administrador\KpisController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Recepcionista\HistorialController;
 use App\Http\Controllers\Recepcionista\PosController;
 use App\Http\Controllers\Motorizado\RutaController;
 use App\Http\Controllers\Motorizado\HistorialController as MotorizadoHistorialController;
+use App\Http\Controllers\SeguimientoController;
 use Illuminate\Support\Facades\Route;
 
 // =================================================================
@@ -25,9 +27,8 @@ Route::get('/', function () {
     return view('welcome');
 })->name('comercial.inicio');
 
-Route::get('/seguimiento', function () {
-    return '<h1>🔍 Módulo de seguimiento en desarrollo</h1>';
-})->name('cliente.seguimiento');
+Route::get('/seguimiento', [SeguimientoController::class, 'index'])->name('cliente.seguimiento');
+Route::get('/seguimiento/consultar', [SeguimientoController::class, 'consultar'])->name('cliente.seguimiento.consultar');
 
 // =================================================================
 // 2. AUTENTICACIÓN
@@ -79,6 +80,7 @@ Route::middleware(['auth', 'rol:administrador,recepcionista,motorizado'])->group
         Route::post('/sunat/{id}/enviar', [SunatController::class, 'enviar'])->name('sunat.enviar');
         Route::get('/sunat/{id}/pdf', [SunatController::class, 'pdf'])->name('sunat.pdf');
         Route::get('/sunat/{id}/ticket', [SunatController::class, 'ticket'])->name('sunat.ticket');
+        Route::get('/auditoria', [AuditLogController::class, 'index'])->name('auditoria');
     });
 
     Route::prefix('recepcionista')->name('recepcionista.')->middleware('rol:recepcionista,administrador')->group(function () {
@@ -108,5 +110,6 @@ Route::middleware(['auth', 'rol:administrador,recepcionista,motorizado'])->group
         Route::get('/pendientes', [RutaController::class, 'pendientes'])->name('pendientes');
         Route::post('/pendientes/{pedido}/recoger', [RutaController::class, 'recogerEnvases'])->name('pendientes.recoger');
         Route::get('/historial', [MotorizadoHistorialController::class, 'index'])->name('historial');
+        Route::get('/cierre', [RutaController::class, 'cierreTurno'])->name('cierre');
     });
 });

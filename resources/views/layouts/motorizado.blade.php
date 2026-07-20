@@ -94,6 +94,12 @@
                         <span class="menu-text">Vacíos Pendientes</span>
                     </a>
                 </li>
+                <li class="nav-item mt-2">
+                    <a href="/motorizado/cierre" class="nav-link {{ request()->is('motorizado/cierre') ? 'active' : '' }}">
+                        <i class="bi bi-journal-check"></i>
+                        <span class="menu-text">Cierre de Turno</span>
+                    </a>
+                </li>
             </ul>
         </aside>
 
@@ -114,7 +120,7 @@
                     <form action="{{ route('logout') }}" method="POST" class="m-0">
                         @csrf
                         <button type="submit" class="btn btn-outline-danger btn-sm shadow-sm fw-semibold px-3">
-                            <i class="bi bi-box-arrow-right me-1"></i> Cerrar Turno
+                            <i class="bi bi-box-arrow-right me-1"></i> Salir
                         </button>
                     </form>
                 </div>
