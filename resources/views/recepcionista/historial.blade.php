@@ -147,7 +147,7 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <button type="button" class="btn btn-light border text-primary shadow-sm" title="Imprimir Ticket" onclick="imprimirTicket('{{ $pedido->codigo_seguimiento }}')">
+                                    <button type="button" class="btn btn-light border text-primary shadow-sm" title="Imprimir Ticket" onclick="imprimirTicket({{ $pedido->comprobante->id ?? 'null' }}, '{{ $pedido->codigo_seguimiento }}')">
                                         <i class="bi bi-receipt"></i>
                                     </button>
                                     @if($pedido->motorizado)
@@ -456,9 +456,12 @@
         btn.classList.toggle('border-warning');
     }
 
-    function imprimirTicket(codigo) {
-        const url = '{{ route("recepcionista.historial") }}?codigo=' + codigo;
-        window.open(url, '_blank');
+    function imprimirTicket(comprobanteId, codigo) {
+        if (!comprobanteId) {
+            Swal.fire('Sin comprobante', 'Este pedido aún no tiene comprobante emitido.', 'info');
+            return;
+        }
+        window.open('{{ url("comprobantes") }}/' + comprobanteId + '/ticket', '_blank');
     }
 
     function verRuta(codigo) {

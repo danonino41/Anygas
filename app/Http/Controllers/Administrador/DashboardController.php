@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Administrador;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
+use App\Models\PagoPedido;
 use App\Models\Producto;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
@@ -15,8 +16,11 @@ class DashboardController extends Controller
     {
         $hoy = now()->toDateString();
 
-        // Resumen del día
-        $ingresosHoy = Pedido::whereDate('fecha_registro', $hoy)->where('estado', 'entregado')->sum('monto_total');
+        $ingresosHoy = DB::table('pagos_pedido')
+            ->join('pedidos', 'pagos_pedido.pedido_id', '=', 'pedidos.id')
+            ->whereDate('pedidos.fecha_registro', $hoy)
+            ->whereNotIn('pedidos.estado', ['cancelado'])
+            ->sum('pagos_pedido.monto');
         $pedidosHoy = Pedido::whereDate('fecha_registro', $hoy)->count();
         $pedidosPendientes = Pedido::where('estado', 'pendiente')->count();
         $motorizadosActivos = Usuario::where('rol', 'motorizado')->where('estado', 'activo')->count();

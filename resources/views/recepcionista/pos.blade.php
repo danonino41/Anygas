@@ -174,7 +174,7 @@
             denyButtonColor: '#343a40',
         }).then((result) => {
             if (result.isDenied) {
-                window.open('{{ url("admin/sunat") }}/{{ session("comprobante_id") }}/ticket', '_blank');
+                window.open('{{ route("comprobantes.ticket", session("comprobante_id")) }}', '_blank');
             }
         });
     });

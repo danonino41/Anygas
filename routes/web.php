@@ -44,6 +44,12 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Usaremos el middleware 'rol' que configuramos (ej: 'rol:administrador')
 Route::middleware(['auth', 'rol:administrador,recepcionista,motorizado'])->group(function () {
 
+    // --- COMPROBANTES COMPARTIDOS (admin + recepcionista) ---
+    Route::middleware('rol:administrador,recepcionista')->group(function () {
+        Route::get('/comprobantes/{id}/pdf', [SunatController::class, 'pdf'])->name('comprobantes.pdf');
+        Route::get('/comprobantes/{id}/ticket', [SunatController::class, 'ticket'])->name('comprobantes.ticket');
+    });
+
     // --- MÓDULO ADMINISTRADOR ---
     Route::prefix('admin')->name('admin.')->middleware('rol:administrador')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
